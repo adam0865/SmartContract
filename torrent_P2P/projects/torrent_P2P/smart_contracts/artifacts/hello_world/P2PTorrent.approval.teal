@@ -1,0 +1,144 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 2 1
+    // smart_contracts/hello_world/contract.py:12
+    // class P2PTorrent(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@9
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x91e0a3d0 0xceea204e // method "store_file(byte[],uint64,byte[])byte[]", method "get_file(byte[])byte[]"
+    txna ApplicationArgs 0
+    match store_file get_file
+    err
+
+main___algopy_default_create@9:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts.hello_world.contract.P2PTorrent.store_file[routing]() -> void:
+store_file:
+    // smart_contracts/hello_world/contract.py:14
+    // @abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/hello_world/contract.py:23
+    // op.itob(chunks)
+    swap
+    itob
+    // smart_contracts/hello_world/contract.py:24
+    // + Bytes(b"|")
+    pushbytes 0x7c
+    // smart_contracts/hello_world/contract.py:23-24
+    // op.itob(chunks)
+    // + Bytes(b"|")
+    concat
+    // smart_contracts/hello_world/contract.py:23-25
+    // op.itob(chunks)
+    // + Bytes(b"|")
+    // + signature
+    swap
+    concat
+    // smart_contracts/hello_world/contract.py:26
+    // + Bytes(b"|")
+    pushbytes 0x7c
+    // smart_contracts/hello_world/contract.py:23-26
+    // op.itob(chunks)
+    // + Bytes(b"|")
+    // + signature
+    // + Bytes(b"|")
+    concat
+    // smart_contracts/hello_world/contract.py:27
+    // + Txn.sender.bytes
+    txn Sender
+    // smart_contracts/hello_world/contract.py:23-27
+    // op.itob(chunks)
+    // + Bytes(b"|")
+    // + signature
+    // + Bytes(b"|")
+    // + Txn.sender.bytes
+    concat
+    // smart_contracts/hello_world/contract.py:31
+    // box.put(file_hash, metadata)
+    box_put
+    // smart_contracts/hello_world/contract.py:14
+    // @abimethod()
+    pushbytes 0x151f7c75000653544f524544
+    log
+    intc_2 // 1
+    return
+
+
+// smart_contracts.hello_world.contract.P2PTorrent.get_file[routing]() -> void:
+get_file:
+    // smart_contracts/hello_world/contract.py:35
+    // @abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/hello_world/contract.py:38
+    // return box.get(default=Bytes(b""))
+    box_get
+    pushbytes 0x
+    cover 2
+    select
+    // smart_contracts/hello_world/contract.py:35
+    // @abimethod(readonly=True)
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
